@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId    String     @id @default(cuid()) @map("USER_ID")
+  firstName String     @map("FIRST_NAME")
+  lastName  String     @map("LAST_NAME")
+  email     String     @unique @map("EMAIL")
+  password  String     @unique @map("PASSWORD")
+  createdAt DateTime   @default(now()) @map("CREATED_AT")
+  updatedAt DateTime?  @updatedAt @map("UPDATED_AT")
+  products  Product[] // remove
+  Vendor    Vendor[]
+  Warranty  Warranty[]
+}
+
+model Product {
+  productId           String     @id @default(cuid()) @map("PRODUCT_ID")
+  buyerId             String     @map("BUYER_ID") // re
+  buyerFirstName      String     @map("BUYER_FIRST_NAME") // re
+  buyerLastName       String     @map("BUYER_LAST_NAME") // re
+  buyerEmailId        String     @map("BUYER_EMAIL_ID") // To be removed
+  buyerPhoneNumber    String     @map("BUYER_PHONE_NUMBER") // To be removed
+  productName         String     @map("PRODUCT_NAME")
+  productType         String     @map("PRODUCT_TYPE")
+  productPurchaseDate String     @map("PRODUCT_PURCHASE_DATE") // re
+  productSerialNumber String     @unique @map("PRODUCT_SERIAL_NUMBER") // re
+  productBrand        String     @map("PRODUCT_BRAND")
+  productImageUrl     String     @map("PRODUCT_IMAGE_URL")
+  user                User       @relation(fields: [buyerId], references: [userId], onDelete: Cascade) // re
+  Warranty            Warranty[]
+}
+
+model Vendor {
+  vendorId            String     @id @default(cuid()) @map("VENDOR_ID")
+  buyerId             String     @map("BUYER_ID")
+  vendorName          String     @map("VENDOR_NAME")
+  vendorReturnPolicy  String     @map("VENDOR_RETURN_POLICY")
+  productBillImageUrl String     @map("PRODUCT_BILL_IMAGE_URL")
+  user                User       @relation(fields: [buyerId], references: [userId], onDelete: Cascade)
+  Warranty            Warranty[]
+}
+
+model Warranty {
+  warrantyId           String  @id @default(cuid()) @map("WARRANTY_ID")
+  warrantyType         String  @map("WARRANTY_TYPE")
+  warrantyDuration     String  @map("WARRANTY_DURATION")
+  warrantyUnit         String  @map("WARRANTY_UNIT") // Require more desc
+  warrantyCoverage     String  @map("WARRANTY_COVERAGE")
+  brandWarranty        String  @map("BRAND_WARRANTY")
+  warrantyCardImageUrl String  @map("WARRANTY_CARD_IMAGE_URL")
+  userId               String  @map("BUYER_ID")
+  productId            String  @map("PRODUCT_ID")
+  vendorId             String  @map("VENDOR_ID")
+  user                 User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product              Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  vendor               Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
+}

@@ -1,0 +1,8 @@
+node_modules
+database
+
+.idea
+.DS_Store
+
+.env
+Database.docx
