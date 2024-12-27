@@ -29,7 +29,6 @@ model Product {
 
 model Vendor {
   vendorId           String @id @default(cuid()) @map("VENDOR_ID")
-  buyerId            String @map("BUYER_ID")
   vendorName         String @map("VENDOR_NAME")
   vendorDetails      String @map("VENDOR_DETAILS")
   vendorGstin        String @map("VENDOR_GSTIN")
@@ -39,17 +38,19 @@ model Vendor {
 }
 
 model Warranty {
-  warrantyId           String  @id @default(cuid()) @map("WARRANTY_ID")
-  warrantyType         String  @map("WARRANTY_TYPE")
-  warrantyDuration     String  @map("WARRANTY_DURATION")
-  warrantyUnit         String  @map("WARRANTY_UNIT") // Require more desc
-  warrantyCoverage     String  @map("WARRANTY_COVERAGE")
-  brandWarranty        String  @map("BRAND_WARRANTY")
-  warrantyCardImageUrl String  @map("WARRANTY_CARD_IMAGE_URL")
-  userId               String  @map("BUYER_ID")
-  productId            String  @map("PRODUCT_ID")
-  vendorId             String  @map("VENDOR_ID")
-  user                 User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  product              Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
-  vendor               Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
+  warrantyId           String @id @default(cuid()) @map("WARRANTY_ID")
+  warrantyType         String @map("WARRANTY_TYPE")
+  warrantyDuration     String @map("WARRANTY_DURATION")
+  warrantyUnit         String @map("WARRANTY_UNIT") // Require more desc
+  warrantyCoverage     String @map("WARRANTY_COVERAGE")
+  brandWarranty        String @map("BRAND_WARRANTY")
+  warrantyCardImageUrl String @map("WARRANTY_CARD_IMAGE_URL")
+
+  userId    String @map("BUYER_ID")
+  productId String @map("PRODUCT_ID")
+  vendorId  String @map("VENDOR_ID")
+
+  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  vendor  Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
 }
