@@ -46,7 +46,7 @@ const handleUserSignUp = async (request, response) => {
             email: newUser.email,
         };
 
-        const signedToken = jwt.sign(tokenData, process.env.JWTSECRETE, {
+        const signedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
             expiresIn: "1d",
         });
 
@@ -107,7 +107,7 @@ const handleUserSignIn = async (request, response) => {
             email: user.email,
         };
 
-        const generatedToken = jwt.sign(tokenData, process.env.JWTSECRETE, {
+        const generatedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
             expiresIn: "1d",
         });
 
