@@ -1,29 +1,44 @@
-import { verify } from "jsonwebtoken";
-const isUserAutheticated = async (request, response, next) => {
-  try {
-    const incommingUserToken = request.cookies.token;
-    if (!incommingUserToken) {
-      return response
-        .status(401)
-        .json({ message: "unauthorised user", status: false });
+import jwt from "jsonwebtoken";
+import {promisify} from "util";
+import {PrismaClient} from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const isUserAuthenticated = async (req, res, next) => {
+    try {
+        let token;
+        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+            token = req.headers.authorization.split(' ')[1];
+        }
+
+        if (!token) {
+            return res.status(401).json({
+                message: "You are not logged in!",
+            });
+        }
+
+        const decoded = await promisify(jwt.verify)(token, process.env.JWTSECRET);
+
+        const user = await prisma.user.findUnique({
+            where: {
+                userId: decoded.userId,
+            }
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                message: "This user no longer exists!",
+            });
+        }
+
+        req.user = user;
+
+        next();
+    } catch (error) {
+        console.log("Something Went Wrong In Authentication Middleware", error);
     }
-
-    const decodedUserToken = await verify(
-      incommingUserToken,
-      process.env.JWTSECRETE
-    );
-
-    if (!decodedUserToken) {
-      return response.status(404).json({
-        message: "invalid user token",
-        status: false,
-      });
-    }
-
-    request.user = decodedUserToken;
-  } catch (error) {
-    console.log("Something Went Wrong In Authetication Middleware", error);
-  }
 };
 
-export default isUserAutheticated;
+export {
+    isUserAuthenticated
+};

@@ -1,28 +1,26 @@
-import { PrismaClient } from '@prisma/client';
+import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
-const handleUserSignUp = async (request, response) => {
+const handleUserSignUp = async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = request.body;
+        const {name, email, password} = req.body;
 
-        if (!firstName || !lastName || !email || !password) {
-            return response.status(400).json({
+        if (!name || !email || !password) {
+            return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
             });
         }
 
-        // Check if user already exists
         const existingUser = await prisma.user.findUnique({
-            where: { email },
+            where: {email},
         });
 
         if (existingUser) {
-            return response.status(400).json({
+            return res.status(400).json({
                 message: "User already exists!",
                 status: false,
             });
@@ -30,12 +28,9 @@ const handleUserSignUp = async (request, response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user
         const newUser = await prisma.user.create({
             data: {
-                userId: uuidv4(),
-                firstName,
-                lastName,
+                name,
                 email,
                 password: hashedPassword,
             },
@@ -47,24 +42,22 @@ const handleUserSignUp = async (request, response) => {
         };
 
         const signedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
-            expiresIn: "1d",
+            expiresIn: "30d",
         });
 
-        response
-            .status(201)
-            .cookie("jwttoken", signedToken, {
-                maxAge: 1 * 24 * 60 * 60 * 1000,
-                sameSite: "strict",
-                secure: true,
-            })
+        newUser.password = undefined;
+        newUser.createdAt = undefined;
+        newUser.updatedAt = undefined;
+
+        res.status(201)
             .json({
                 message: "User created successfully",
-                status: true,
                 token: signedToken,
+                newUser
             });
     } catch (error) {
         console.error(error);
-        response.status(500).json({
+        res.status(500).json({
             message: "Something went wrong in sign up",
             status: false,
         });
@@ -73,7 +66,7 @@ const handleUserSignUp = async (request, response) => {
 
 const handleUserSignIn = async (request, response) => {
     try {
-        const { email, password } = request.body;
+        const {email, password} = request.body;
 
         if (!email || !password) {
             return response.status(400).json({
@@ -83,7 +76,7 @@ const handleUserSignIn = async (request, response) => {
         }
 
         const user = await prisma.user.findUnique({
-            where: { email },
+            where: {email},
         });
 
         if (!user) {
@@ -108,22 +101,18 @@ const handleUserSignIn = async (request, response) => {
         };
 
         const generatedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
-            expiresIn: "1d",
+            expiresIn: "30d",
         });
 
-        response
-            .status(200)
-            .cookie("jwttoken", generatedToken, {
-                maxAge: 1 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-                sameSite: "strict",
-                secure: true,
-            })
+        user.password = undefined;
+        user.createdAt = undefined;
+        user.updatedAt = undefined;
+
+        response.status(200)
             .json({
                 message: "Login successful",
-                status: true,
                 token: generatedToken,
-                tokenData,
+                user
             });
     } catch (error) {
         console.error(error);
@@ -134,65 +123,7 @@ const handleUserSignIn = async (request, response) => {
     }
 };
 
-const handleUserSignOut = async (request, response) => {
-    try {
-        response.status(200).cookie("jwttoken", "", { maxAge: 0 }).json({
-            message: "Logout successful",
-            status: true,
-        });
-    } catch (error) {
-        console.error(error);
-        response.status(500).json({
-            message: "Something went wrong in sign out",
-            status: false,
-        });
-    }
-};
-
-const handleUserProfileUpdate = async (request, response) => {
-    try {
-        const { firstName, lastName, phoneNumber, bio, skills, email } = request.body;
-
-        if (!firstName || !lastName || !phoneNumber || !bio || !skills || !email) {
-            return response.status(400).json({
-                message: "Please fill all the fields",
-                status: false,
-            });
-        }
-
-        const userId = request.userId;
-
-        const updatedUser = await prisma.user.update({
-            where: { userId },
-            data: {
-                firstName,
-                lastName,
-                phoneNumber,
-                profile: {
-                    skills: skills.split(","),
-                    email,
-                    bio,
-                },
-            },
-        });
-
-        response.status(200).json({
-            message: "User profile updated successfully",
-            status: true,
-            user: updatedUser,
-        });
-    } catch (error) {
-        console.error(error);
-        response.status(500).json({
-            message: "Something went wrong while updating profile",
-            status: false,
-        });
-    }
-};
-
 export {
     handleUserSignUp,
-    handleUserSignIn,
-    handleUserSignOut,
-    handleUserProfileUpdate,
+    handleUserSignIn
 };

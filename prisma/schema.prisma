@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  userId    String     @id @default(cuid()) @map("USER_ID")
-  firstName String     @map("FIRST_NAME")
-  lastName  String     @map("LAST_NAME")
-  email     String     @unique @map("EMAIL")
-  password  String     @unique @map("PASSWORD")
-  createdAt DateTime   @default(now()) @map("CREATED_AT")
-  updatedAt DateTime?  @updatedAt @map("UPDATED_AT")
-  Warranty  Warranty[]
+  userId      String     @id @default(cuid()) @map("USER_ID")
+  name        String     @map("NAME")
+  email       String     @unique @map("EMAIL")
+  password    String     @map("PASSWORD")
+  phoneNumber String?    @map("PHONE_NUMBER")
+  address     String?    @map("ADDRESS")
+  createdAt   DateTime   @default(now()) @map("CREATED_AT")
+  updatedAt   DateTime?  @updatedAt @map("UPDATED_AT")
+  Warranty    Warranty[]
 }
 
 model Product {

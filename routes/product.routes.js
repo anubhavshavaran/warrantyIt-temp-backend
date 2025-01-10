@@ -9,8 +9,6 @@ import {
 
 const router = Router();
 
-// router.post("/register",handleRegisterProduct) ;
-
 router.route("/")
     .get(handleGetAllProducts)
     .post(handleRegisterProduct)

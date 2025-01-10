@@ -4,7 +4,7 @@ import { handleUserSignUp, handleUserSignIn } from "../controllers/authenticatio
 
 const router = Router() ;
 
-router.post("/signup",handleUserSignUp) ;
-router.post("/signin",handleUserSignIn) ;
+router.post("/signup",handleUserSignUp);
+router.post("/signin",handleUserSignIn);
 
 export default router;
