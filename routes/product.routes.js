@@ -6,16 +6,17 @@ import {
     handleRegisterProduct,
     handleUpdateProduct
 } from "../controllers/product.controllers.js";
+import {isUserAuthenticated} from "../middlewares/Authentication.middleware.js";
 
 const router = Router();
 
 router.route("/")
-    .get(handleGetAllProducts)
-    .post(handleRegisterProduct)
+    .get(isUserAuthenticated, handleGetAllProducts)
+    .post(isUserAuthenticated, handleRegisterProduct)
 
 router.route("/:id")
-    .get(handleGetProduct)
-    .patch(handleUpdateProduct)
-    .delete(handleDeleteProduct);
+    .get(isUserAuthenticated, handleGetProduct)
+    .patch(isUserAuthenticated, handleUpdateProduct)
+    .delete(isUserAuthenticated, handleDeleteProduct);
 
 export default router;

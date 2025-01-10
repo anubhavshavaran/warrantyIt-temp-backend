@@ -6,7 +6,8 @@ const handleCreateWarranty = async (req, res) => {
     try {
         const warranty = await prisma.warranty.create({
             data: {
-                ...req.body
+                ...req.body,
+                userId: req.user.userId,
             }
         });
 
@@ -15,6 +16,7 @@ const handleCreateWarranty = async (req, res) => {
             data: {warranty}
         });
     } catch (error) {
+        console.log(error)
         res.status(500).send({
             status: "Error",
             message: error.message
@@ -24,7 +26,11 @@ const handleCreateWarranty = async (req, res) => {
 
 const handleGetAllWarranties = async (req, res) => {
     try {
-        const warranties = await prisma.warranty.findMany();
+        const warranties = await prisma.warranty.findMany({
+            where: {
+                userId: req.user.userId,
+            }
+        });
 
         res.status(200).send({
             status: "Warranties fetched successfully",

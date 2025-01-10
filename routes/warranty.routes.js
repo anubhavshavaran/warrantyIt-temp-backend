@@ -5,16 +5,17 @@ import {
     handleGetWarranty,
     handleUpdateWarranty
 } from "../controllers/warranty.controllers.js";
+import {isUserAuthenticated} from "../middlewares/Authentication.middleware.js";
 
 const router = Router();
 
 router.route("/")
-    .get(handleGetAllWarranties)
-    .post(handleCreateWarranty);
+    .get(isUserAuthenticated, handleGetAllWarranties)
+    .post(isUserAuthenticated, handleCreateWarranty);
 
 router.route("/:id")
-    .get(handleGetWarranty)
-    .patch(handleUpdateWarranty)
-    .delete(handleDeleteWarranty);
+    .get(isUserAuthenticated, handleGetWarranty)
+    .patch(isUserAuthenticated, handleUpdateWarranty)
+    .delete(isUserAuthenticated, handleDeleteWarranty);
 
 export default router;

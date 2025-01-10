@@ -5,16 +5,17 @@ import {
     handleGetVendor,
     handleUpdateVendor
 } from "../controllers/vendor.controllers.js";
+import {isUserAuthenticated} from "../middlewares/Authentication.middleware.js";
 
 const router = Router();
 
 router.route("/")
-    .get(handleGetAllVendors)
-    .post(handleCreateVendor);
+    .get(isUserAuthenticated, handleGetAllVendors)
+    .post(isUserAuthenticated, handleCreateVendor);
 
 router.route("/:id")
-    .get(handleGetVendor)
-    .patch(handleUpdateVendor)
-    .delete(handleDeleteVendor);
+    .get(isUserAuthenticated, handleGetVendor)
+    .patch(isUserAuthenticated, handleUpdateVendor)
+    .delete(isUserAuthenticated, handleDeleteVendor);
 
 export default router;
