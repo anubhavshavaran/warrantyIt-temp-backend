@@ -11,7 +11,7 @@ model User {
   userId      String     @id @default(cuid()) @map("USER_ID")
   name        String     @map("NAME")
   email       String     @unique @map("EMAIL")
-  password    String     @map("PASSWORD")
+  password    String?    @map("PASSWORD")
   phoneNumber String?    @map("PHONE_NUMBER")
   address     String?    @map("ADDRESS")
   createdAt   DateTime   @default(now()) @map("CREATED_AT")

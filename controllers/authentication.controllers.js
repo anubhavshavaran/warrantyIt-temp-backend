@@ -1,8 +1,31 @@
 import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import {OAuth2Client} from 'google-auth-library';
+
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(CLIENT_ID);
 
 const prisma = new PrismaClient();
+
+const signToken = (userId) => {
+    return jwt.sign({userId}, process.env.JWTSECRET, {
+        expiresIn: process.env.JWTEXPIRESIN,
+    });
+}
+
+const verifyGoogleToken = async (idToken) => {
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: CLIENT_ID,
+        });
+        return ticket.getPayload();
+    } catch (error) {
+        console.error('Error verifying Google token:', error);
+        throw new Error('Invalid token');
+    }
+};
 
 const handleUserSignUp = async (req, res) => {
     try {
@@ -36,14 +59,7 @@ const handleUserSignUp = async (req, res) => {
             },
         });
 
-        const tokenData = {
-            userId: newUser.userId,
-            email: newUser.email,
-        };
-
-        const signedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
-            expiresIn: "30d",
-        });
+        const token = signToken(newUser.userId);
 
         newUser.password = undefined;
         newUser.createdAt = undefined;
@@ -52,7 +68,7 @@ const handleUserSignUp = async (req, res) => {
         res.status(201)
             .json({
                 message: "User created successfully",
-                token: signedToken,
+                token,
                 newUser
             });
     } catch (error) {
@@ -64,12 +80,12 @@ const handleUserSignUp = async (req, res) => {
     }
 };
 
-const handleUserSignIn = async (request, response) => {
+const handleUserSignIn = async (req, res) => {
     try {
-        const {email, password} = request.body;
+        const {email, password} = req.body;
 
         if (!email || !password) {
-            return response.status(400).json({
+            return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
             });
@@ -80,7 +96,7 @@ const handleUserSignIn = async (request, response) => {
         });
 
         if (!user) {
-            return response.status(400).json({
+            return res.status(400).json({
                 message: "Incorrect email or password",
                 status: false,
             });
@@ -89,41 +105,82 @@ const handleUserSignIn = async (request, response) => {
         const validPassword = await bcrypt.compare(password, user.password);
 
         if (!validPassword) {
-            return response.status(400).json({
+            return res.status(400).json({
                 message: "Incorrect email or password",
                 status: false,
             });
         }
 
-        const tokenData = {
-            userId: user.userId,
-            email: user.email,
-        };
-
-        const generatedToken = jwt.sign(tokenData, process.env.JWTSECRET, {
-            expiresIn: "30d",
-        });
+        const token = signToken(user.userId);
 
         user.password = undefined;
         user.createdAt = undefined;
         user.updatedAt = undefined;
 
-        response.status(200)
+        res.status(200)
             .json({
                 message: "Login successful",
-                token: generatedToken,
+                token,
                 user
             });
     } catch (error) {
         console.error(error);
-        response.status(500).json({
+        res.status(500).json({
             message: "Something went wrong in sign in",
             status: false,
         });
     }
 };
 
+const handleUserWithGoogle = async (req, res) => {
+    const {token} = req.params;
+
+    if (!token) {
+        return res.status(400).json({
+            message: "Token is required",
+        });
+    }
+
+    try {
+        const {email, name} = await verifyGoogleToken(token);
+
+
+        let user = await prisma.user.findUnique({
+            where: {email},
+        });
+
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    name,
+                    email
+                }
+            });
+        }
+
+        const token = signToken(user.userId);
+
+        user.password = undefined;
+        user.createdAt = undefined;
+        user.updatedAt = undefined;
+
+        res.status(200)
+            .json({
+                message: "Authenticated successfully",
+                token,
+                user
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Something went wrong in sign in",
+            status: false,
+        });
+    }
+}
+
 export {
     handleUserSignUp,
-    handleUserSignIn
+    handleUserSignIn,
+    handleUserWithGoogle,
 };
