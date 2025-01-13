@@ -133,16 +133,15 @@ const handleUserSignIn = async (req, res) => {
 };
 
 const handleUserWithGoogle = async (req, res) => {
-    const {token} = req.params;
-
-    if (!token) {
-        return res.status(400).json({
-            message: "Token is required",
-        });
-    }
-
     try {
-        const {email, name} = await verifyGoogleToken(token);
+        const {token: googleToken} = req.params;
+
+        if (!googleToken) {
+            return res.status(400).json({
+                message: "Token is required",
+            });
+        }
+        const {email, name} = await verifyGoogleToken(googleToken);
 
 
         let user = await prisma.user.findUnique({
@@ -173,7 +172,7 @@ const handleUserWithGoogle = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            message: "Something went wrong in sign in",
+            message: "Something went wrong in authentication",
             status: false,
         });
     }

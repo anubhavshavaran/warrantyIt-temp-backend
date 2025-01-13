@@ -6,6 +6,6 @@ const router = Router() ;
 
 router.post("/signup", handleUserSignUp);
 router.post("/signin", handleUserSignIn);
-router.post("/google", handleUserWithGoogle);
+router.post("/google/:token", handleUserWithGoogle);
 
 export default router;
