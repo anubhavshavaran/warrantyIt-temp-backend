@@ -29,17 +29,31 @@ const verifyGoogleToken = async (idToken) => {
 
 const handleUserSignUp = async (req, res) => {
     try {
-        const {name, email, password} = req.body;
+        const {username, email, password} = req.body;
 
-        if (!name || !email || !password) {
+        if (!username || !email || !password) {
             return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
             });
         }
 
-        const existingUser = await prisma.user.findUnique({
-            where: {email},
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
+
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                message: "Please provide a valid username",
+                status: false,
+            });
+        }
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: email },
+                    { username: username }
+                ]
+            },
         });
 
         if (existingUser) {
@@ -53,7 +67,7 @@ const handleUserSignUp = async (req, res) => {
 
         const newUser = await prisma.user.create({
             data: {
-                name,
+                username,
                 email,
                 password: hashedPassword,
             },
@@ -82,17 +96,22 @@ const handleUserSignUp = async (req, res) => {
 
 const handleUserSignIn = async (req, res) => {
     try {
-        const {email, password} = req.body;
+        const {id, password} = req.body;
 
-        if (!email || !password) {
+        if (!id || !password) {
             return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
             });
         }
 
-        const user = await prisma.user.findUnique({
-            where: {email},
+        const user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    {email: id,},
+                    {username: id}
+                ]
+            },
         });
 
         if (!user) {
