@@ -29,13 +29,13 @@ model Product {
 }
 
 model Vendor {
-  vendorId               String @id @default(cuid()) @map("VENDOR_ID")
-  vendorName             String @map("VENDOR_NAME")
-  vendorAddress          String @map("VENDOR_ADDRESS")
-  vendorContact          String @map("VENDOR_CONTACT")
-  vendorWarrantyCoverage String @map("VENDOR_WARRANTY_COVERAGE")
-  vendorGstin            String @map("VENDOR_GSTIN")
-  vendorReturnPolicy     String @map("VENDOR_RETURN_POLICY")
+  vendorId               String  @id @default(cuid()) @map("VENDOR_ID")
+  vendorName             String  @map("VENDOR_NAME")
+  vendorAddress          String  @map("VENDOR_ADDRESS")
+  vendorContact          String  @map("VENDOR_CONTACT")
+  vendorWarrantyCoverage String  @map("VENDOR_WARRANTY_COVERAGE")
+  vendorGstin            String? @map("VENDOR_GSTIN")
+  vendorReturnPolicy     String  @map("VENDOR_RETURN_POLICY")
 
   Warranty Warranty[]
 }
@@ -50,6 +50,9 @@ model Warranty {
   warrantyCardImageUrl String @map("WARRANTY_CARD_IMAGE_URL")
   purchaseDate         String @map("PRODUCT_PURCHASE_DATE")
   serialNumber         String @map("PRODUCT_SERIAL_NUMBER")
+  buyersName           String @map("BUYERS_NAME")
+  buyersEmail          String @map("BUYERS_EMAIL")
+  buyersPhone          String @map("BUYERS_PHONE")
 
   userId    String @map("BUYER_ID")
   productId String @map("PRODUCT_ID")
