@@ -3,11 +3,13 @@ import {PrismaClient} from "@prisma/client";
 const prisma = new PrismaClient();
 
 const handleCreateWarranty = async (req, res) => {
+    const {userId} = req.user;
+
     try {
         const warranty = await prisma.warranty.create({
             data: {
                 ...req.body,
-                userId: req.user.userId,
+                userId: userId
             }
         });
 

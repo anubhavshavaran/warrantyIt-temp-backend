@@ -58,7 +58,7 @@ model Warranty {
   productId String @map("PRODUCT_ID")
   vendorId  String @map("VENDOR_ID")
 
-  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
-  vendor  Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
+  user    User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  vendor  Vendor?  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
 }
