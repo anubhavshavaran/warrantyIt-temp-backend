@@ -2,7 +2,7 @@ import {Router} from "express";
 import {
     handleDeleteProduct,
     handleGetAllProducts,
-    handleGetProduct,
+    handleGetProduct, handleGetProductsByType,
     handleRegisterProduct,
     handleUpdateProduct
 } from "../controllers/product.controllers.js";
@@ -18,5 +18,8 @@ router.route("/:id")
     .get(isUserAuthenticated, handleGetProduct)
     .patch(isUserAuthenticated, handleUpdateProduct)
     .delete(isUserAuthenticated, handleDeleteProduct);
+
+router.route("/type/:type")
+    .get(isUserAuthenticated, handleGetProductsByType)
 
 export default router;

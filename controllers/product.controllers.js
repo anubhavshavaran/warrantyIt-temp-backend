@@ -80,10 +80,31 @@ const handleUpdateProduct = async (req, res) => {
     });
 }
 
+const handleGetProductsByType = async (req, res) => {
+    const {type} = req.params;
+    const products = await prisma.product.findMany({
+        where: {
+            productType: type
+        },
+        select: {
+            productId: true,
+            productBrand: true
+        }
+    });
+
+    res.status(200).json({
+        status: 'Products fetched successfully',
+        data: {
+            products
+        }
+    });
+}
+
 export {
     handleRegisterProduct,
     handleGetAllProducts,
     handleUpdateProduct,
     handleGetProduct,
-    handleDeleteProduct
+    handleDeleteProduct,
+    handleGetProductsByType
 };
