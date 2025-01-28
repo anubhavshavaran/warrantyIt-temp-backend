@@ -31,6 +31,9 @@ const handleGetAllWarranties = async (req, res) => {
         const warranties = await prisma.warranty.findMany({
             where: {
                 userId: req.user.userId,
+            },
+            include: {
+                product: true
             }
         });
 
@@ -53,6 +56,9 @@ const handleGetWarranty = async (req, res) => {
         const warranty = await prisma.warranty.findUnique({
             where: {
                 warrantyId: id
+            },
+            include: {
+                product: true
             }
         });
 
