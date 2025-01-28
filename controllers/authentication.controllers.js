@@ -2,6 +2,7 @@ import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {OAuth2Client} from 'google-auth-library';
+import {promisify} from "util";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
@@ -50,8 +51,8 @@ const handleUserSignUp = async (req, res) => {
         const existingUser = await prisma.user.findFirst({
             where: {
                 OR: [
-                    { email: email },
-                    { username: username }
+                    {email: email},
+                    {username: username}
                 ]
             },
         });
@@ -197,8 +198,45 @@ const handleUserWithGoogle = async (req, res) => {
     }
 }
 
+const handleVerifyUser = async (req, res) => {
+    try {
+        const {token} = req.body;
+        if (!token) {
+            return res.status(400).json({
+                message: "Please provide the token",
+            });
+        }
+
+        const decoded = await promisify(jwt.verify)(token, process.env.JWTSECRET);
+        const user = await prisma.user.findFirst({
+            where: {
+                userId: decoded.userId,
+            }
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                message: "This user no longer exists!",
+            });
+        }
+
+        res.status(200).json({
+            message: "Verification successfully",
+            user,
+            token
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({
+            message: "Something went wrong in authentication",
+            status: false,
+        });
+    }
+}
+
 export {
     handleUserSignUp,
     handleUserSignIn,
     handleUserWithGoogle,
+    handleVerifyUser,
 };
