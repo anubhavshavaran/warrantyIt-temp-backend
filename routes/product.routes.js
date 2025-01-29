@@ -3,7 +3,7 @@ import {
     handleDeleteProduct,
     handleGetAllProducts,
     handleGetProduct, handleGetProductsByType,
-    handleRegisterProduct,
+    handleRegisterProduct, handleSearchProducts,
     handleUpdateProduct
 } from "../controllers/product.controllers.js";
 import {isUserAuthenticated} from "../middlewares/Authentication.middleware.js";
@@ -20,6 +20,9 @@ router.route("/:id")
     .delete(isUserAuthenticated, handleDeleteProduct);
 
 router.route("/type/:type")
-    .get(isUserAuthenticated, handleGetProductsByType)
+    .get(isUserAuthenticated, handleGetProductsByType);
+
+router.route("/search/:q")
+    .get(isUserAuthenticated, handleSearchProducts);
 
 export default router;

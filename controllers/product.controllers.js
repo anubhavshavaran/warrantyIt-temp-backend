@@ -100,11 +100,31 @@ const handleGetProductsByType = async (req, res) => {
     });
 }
 
+const handleSearchProducts = async (req, res) => {
+    const {q} = req.params;
+    const products = await prisma.product.findMany({
+        where: {
+            productName: {
+                contains: q,
+                mode: "insensitive",
+            },
+        },
+    });
+
+    res.status(200).json({
+        status: 'Products fetched successfully',
+        data: {
+            products
+        }
+    });
+}
+
 export {
     handleRegisterProduct,
     handleGetAllProducts,
     handleUpdateProduct,
     handleGetProduct,
     handleDeleteProduct,
-    handleGetProductsByType
+    handleGetProductsByType,
+    handleSearchProducts,
 };
