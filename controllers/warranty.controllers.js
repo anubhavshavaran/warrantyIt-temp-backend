@@ -33,7 +33,8 @@ const handleGetAllWarranties = async (req, res) => {
                 userId: req.user.userId,
             },
             include: {
-                product: true
+                product: true,
+                vendor: true
             }
         });
 
@@ -58,7 +59,8 @@ const handleGetWarranty = async (req, res) => {
                 warrantyId: id
             },
             include: {
-                product: true
+                product: true,
+                vendor: true
             }
         });
 
