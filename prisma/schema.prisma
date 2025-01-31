@@ -10,6 +10,8 @@ datasource db {
 model User {
   userId      String     @id @default(cuid()) @map("USER_ID")
   username    String     @unique @map("USERNAME")
+  firstname   String     @unique @map("FIRSTNAME")
+  lastname    String     @unique @map("LASTNAME")
   email       String     @unique @map("EMAIL")
   password    String?    @map("PASSWORD")
   phoneNumber String?    @map("PHONE_NUMBER")
@@ -29,30 +31,30 @@ model Product {
 }
 
 model Vendor {
-  vendorId               String  @id @default(cuid()) @map("VENDOR_ID")
-  vendorName             String  @map("VENDOR_NAME")
-  vendorAddress          String  @map("VENDOR_ADDRESS")
-  vendorContact          String  @map("VENDOR_CONTACT")
-  vendorWarrantyCoverage String  @map("VENDOR_WARRANTY_COVERAGE")
-  vendorGstin            String? @map("VENDOR_GSTIN")
-  vendorReturnPolicy     String  @map("VENDOR_RETURN_POLICY")
+  vendorId           String  @id @default(cuid()) @map("VENDOR_ID")
+  vendorName         String  @map("VENDOR_NAME")
+  vendorAddress      String  @map("VENDOR_ADDRESS")
+  vendorContact      String  @map("VENDOR_CONTACT")
+  vendorGstin        String? @map("VENDOR_GSTIN")
+  vendorReturnPolicy String  @map("VENDOR_RETURN_POLICY")
 
   Warranty Warranty[]
 }
 
 model Warranty {
-  warrantyId           String @id @default(cuid()) @map("WARRANTY_ID")
-  warrantyStart        String @map("WARRANTY_START_DATE")
-  warrantyEnd          String @map("WARRANTY_END_DATE")
-  warrantyType         String @map("WARRANTY_TYPE")
-  warrantyCoverage     String @map("WARRANTY_COVERAGE")
-  brandWarranty        String @map("BRAND_WARRANTY")
-  warrantyCardImageUrl String @map("WARRANTY_CARD_IMAGE_URL")
-  purchaseDate         String @map("PRODUCT_PURCHASE_DATE")
-  serialNumber         String @map("PRODUCT_SERIAL_NUMBER")
-  buyersName           String @map("BUYERS_NAME")
-  buyersEmail          String @map("BUYERS_EMAIL")
-  buyersPhone          String @map("BUYERS_PHONE")
+  warrantyId             String @id @default(cuid()) @map("WARRANTY_ID")
+  warrantyStart          String @map("WARRANTY_START_DATE")
+  warrantyEnd            String @map("WARRANTY_END_DATE")
+  warrantyType           String @map("WARRANTY_TYPE")
+  warrantyCoverage       String @map("WARRANTY_COVERAGE")
+  brandWarranty          String @map("BRAND_WARRANTY")
+  warrantyCardImageUrl   String @map("WARRANTY_CARD_IMAGE_URL")
+  purchaseDate           String @map("PRODUCT_PURCHASE_DATE")
+  serialNumber           String @map("PRODUCT_SERIAL_NUMBER")
+  buyersName             String @map("BUYERS_NAME")
+  buyersEmail            String @map("BUYERS_EMAIL")
+  buyersPhone            String @map("BUYERS_PHONE")
+  vendorWarrantyCoverage String @map("VENDOR_WARRANTY_COVERAGE")
 
   userId    String @map("BUYER_ID")
   productId String @map("PRODUCT_ID")

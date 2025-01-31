@@ -30,9 +30,9 @@ const verifyGoogleToken = async (idToken) => {
 
 const handleUserSignUp = async (req, res) => {
     try {
-        const {username, email, password} = req.body;
+        const {firstname, lastname, username, email, password} = req.body;
 
-        if (!username || !email || !password) {
+        if (!username || !email || !password || !firstname || !lastname) {
             return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
@@ -40,10 +40,11 @@ const handleUserSignUp = async (req, res) => {
         }
 
         const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if (!usernameRegex.test(username)) {
+        if (!usernameRegex.test(username) || !emailRegex.test(email)) {
             return res.status(400).json({
-                message: "Please provide a valid username",
+                message: "Please provide a valid username and email address!",
                 status: false,
             });
         }
@@ -68,6 +69,8 @@ const handleUserSignUp = async (req, res) => {
 
         const newUser = await prisma.user.create({
             data: {
+                firstname,
+                lastname,
                 username,
                 email,
                 password: hashedPassword,

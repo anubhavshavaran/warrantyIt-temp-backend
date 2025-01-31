@@ -4,6 +4,7 @@ import autheticationRouter from "./routes/authentication.routes.js";
 import productRouter from "./routes/product.routes.js";
 import vendorRouter from "./routes/vendor.routes.js";
 import warrantyRouter from "./routes/warranty.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(json());
 app.use(urlencoded({extended: true}));
 app.use(static_("public"));
 app.use("/api/auth", autheticationRouter);
+app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/vendors", vendorRouter);
 app.use("/api/warranty", warrantyRouter);
