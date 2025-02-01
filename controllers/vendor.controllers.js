@@ -126,10 +126,30 @@ const handleDeleteVendor = async (req, res) => {
     }
 }
 
+const handleSearchVendors = async (req, res) => {
+    const {q} = req.params;
+    const vendors = await prisma.vendor.findMany({
+        where: {
+            vendorName: {
+                contains: q,
+                mode: "insensitive",
+            },
+        },
+    });
+
+    res.status(200).json({
+        status: 'Vendors fetched successfully',
+        data: {
+            vendors
+        }
+    });
+}
+
 export {
     handleGetAllVendors,
     handleGetVendor,
     handleUpdateVendor,
     handleDeleteVendor,
-    handleCreateVendor
+    handleCreateVendor,
+    handleSearchVendors,
 }
