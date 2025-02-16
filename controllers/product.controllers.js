@@ -3,10 +3,13 @@ import {PrismaClient} from '@prisma/client';
 const prisma = new PrismaClient();
 
 const handleRegisterProduct = async (req, res) => {
+    const {userId} = req.user;
+
     try {
         const registeredProduct = await prisma.product.create({
             data: {
-                ...req.body
+                ...req.body,
+                userId: userId,
             },
         });
 
@@ -51,7 +54,7 @@ const handleGetProduct = async (req, res) => {
 }
 
 const handleDeleteProduct = async (req, res) => {
-    const product = await prisma.product.delete({
+    await prisma.product.delete({
         where: {
             productId: req.params.id,
         }
