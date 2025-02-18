@@ -111,6 +111,7 @@ const handleSearchProducts = async (req, res) => {
                 contains: q,
                 mode: "insensitive",
             },
+            userId: req.user.userId,
         },
     });
 
