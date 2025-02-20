@@ -104,23 +104,32 @@ const handleGetProductsByType = async (req, res) => {
 }
 
 const handleSearchProducts = async (req, res) => {
-    const {q} = req.params;
-    const products = await prisma.product.findMany({
-        where: {
-            productName: {
-                contains: q,
-                mode: "insensitive",
-            },
-            userId: req.user.userId,
-        },
-    });
+    try {
 
-    res.status(200).json({
-        status: 'Products fetched successfully',
-        data: {
-            products
-        }
-    });
+        const {q} = req.params;
+        const products = await prisma.product.findMany({
+            where: {
+                productName: {
+                    contains: q,
+                    mode: "insensitive",
+                },
+                userId: req.user.userId,
+            },
+        });
+
+        res.status(200).json({
+            status: 'Products fetched successfully',
+            data: {
+                products
+            }
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Something went wrong while searching the product",
+            status: false,
+        });
+    }
 }
 
 export {
