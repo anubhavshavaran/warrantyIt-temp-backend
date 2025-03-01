@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Product" ADD COLUMN     "IS_PRODUCT_OWNED" TEXT;
