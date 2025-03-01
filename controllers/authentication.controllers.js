@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {OAuth2Client} from 'google-auth-library';
 import {promisify} from "util";
+import {generateOTP} from "../lib/OTP.js";
+import {sendMail} from "../lib/mailer.js";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
@@ -237,9 +239,39 @@ const handleVerifyUser = async (req, res) => {
     }
 }
 
+const handleSendOTP = async (req, res) => {
+    const {email} = req.body;
+    try {
+        if (!email) {
+            throw new Error("Please provide an email address");
+        }
+
+        const otp = generateOTP();
+
+        await sendMail(
+            email,
+            'Your OTP for signing up.',
+            `This is your OTP for signing up: ${otp}. Please don't share this with anyone.`
+        );
+
+        res.status(200).json({
+            message: "Email sent successfully",
+            otp
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({
+            message: "Something went wrong",
+            error: e.message,
+            status: false,
+        });
+    }
+}
+
 export {
     handleUserSignUp,
     handleUserSignIn,
     handleUserWithGoogle,
     handleVerifyUser,
+    handleSendOTP,
 };

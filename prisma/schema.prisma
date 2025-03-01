@@ -23,13 +23,12 @@ model User {
 }
 
 model Product {
-  productId       String  @id @default(cuid()) @map("PRODUCT_ID")
-  productName     String  @map("PRODUCT_NAME")
-  productType     String  @map("PRODUCT_TYPE")
-  productBrand    String  @map("PRODUCT_BRAND")
-  productImageUrl String  @map("PRODUCT_IMAGE_URL")
-  userId          String  @map("USER_ID")
-  isProductOwned  String? @map("IS_PRODUCT_OWNED")
+  productId       String @id @default(cuid()) @map("PRODUCT_ID")
+  productName     String @map("PRODUCT_NAME")
+  productType     String @map("PRODUCT_TYPE")
+  productBrand    String @map("PRODUCT_BRAND")
+  productImageUrl String @map("PRODUCT_IMAGE_URL")
+  userId          String @map("USER_ID")
 
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
@@ -63,6 +62,7 @@ model Warranty {
   buyersName             String  @map("BUYERS_NAME")
   buyersPhone            String  @map("BUYERS_PHONE")
   vendorWarrantyCoverage String  @map("VENDOR_WARRANTY_COVERAGE")
+  isProductOwned         String? @map("IS_PRODUCT_OWNED")
   user                   User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   product                Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   vendor                 Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
