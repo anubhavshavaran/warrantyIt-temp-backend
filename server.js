@@ -6,10 +6,17 @@ import vendorRouter from "./routes/vendor.routes.js";
 import warrantyRouter from "./routes/warranty.routes.js";
 import userRouter from "./routes/user.routes.js";
 import ocRouter from "./routes/ocr.routes.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET','POST','PUT',"DELETE"],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(json());
 app.use(urlencoded({extended: true}));
@@ -21,6 +28,6 @@ app.use("/api/vendors", vendorRouter);
 app.use("/api/warranty", warrantyRouter);
 app.use("/api/ocr", ocRouter);
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`Listening on port ${process.env.PORT}`);
 });
