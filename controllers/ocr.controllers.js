@@ -1,5 +1,5 @@
 import Tesseract from 'tesseract.js';
-import {Jimp, JimpMime} from "jimp";
+import { Jimp, JimpMime } from "jimp";
 
 function extractWarrantyData(text) {
     const warrantyData = {
@@ -7,14 +7,11 @@ function extractWarrantyData(text) {
         warrantyEnd: null,
         warrantyCoverage: null,
         warrantyType: null,
-        // serialNumber: null,
         isBrandWarranty: null
     };
 
     const lines = text.toLowerCase().split('\n');
     const dateRegex = /\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
-    // const serialRegex = /(?:serial|sn|s\/n|serial number)\s*[:#-]?\s*([a-z0-9-]+)/i;
-    // const serialRegex = /^(?:\d{4}-\d{4}-\d{5}|[a-z0-9 _-]+)$/i;
     const coverageRegex = /(?:coverage|warranty coverage)\s*[:\s]?\s*([a-z\s,]+)/i;
     const typeRegex = /(?:type|warranty type)\s*[:\s]?\s*(limited|extended|full|basic)/i;
     const brandRegex = /(brand|manufacturer|official)\s*(warranty)/i;
@@ -40,18 +37,8 @@ function extractWarrantyData(text) {
             }
         }
 
-        // if (line.includes('serial number') || line.includes('serial') || line.includes('sn')) {
-        //     console.log('serial')
-        //     let match = line.match(serialRegex);
-        //     console.log(match)
-        //     if (match && match[1]) {
-        //         warrantyData.serialNumber = match[1].trim();
-        //     }
-        // }
-
         let match = line.match(coverageRegex);
         if (match && match[1]) {
-            console.log(match)
             warrantyData.warrantyCoverage = match[1].trim();
         } else if (line.includes('parts') || line.includes('labor') || line.includes('repair')) {
             warrantyData.warrantyCoverage = warrantyData.warrantyCoverage || line.trim();
@@ -73,11 +60,85 @@ function extractWarrantyData(text) {
     return warrantyData;
 }
 
+function identifyProductTypeRegex(productName) {
+    const patterns = [
+        { type: "shirt", regex: /\b(shirt|tee|t-shirt|polo)\b/i },
+        { type: "pants", regex: /\b(pants|trousers|jeans|leggings)\b/i },
+        { type: "shoes", regex: /\b(shoe|sneaker|boot|sandal)\b/i },
+        { type: "phone", regex: /\b(phone|smartphone|mobile|iphone|galaxy)\b/i },
+        { type: "laptop", regex: /\b(laptop|notebook|macbook|chromebook)\b/i },
+        { type: "ram", regex: /\b(ram|memory|ddr[3-5]|dimms?)\b/i },
+        { type: "ssd", regex: /\b(ssd|solid[- ]state|nvme|m\.2|sata)\b/i },
+    ];
+
+    for (const { type, regex } of patterns) {
+        if (regex.test(productName)) {
+            return type;
+        }
+    }
+
+    return null;
+}
+
+const extractBrand = (productName) => {
+    if (!productName) return null;
+
+    const brands = [
+        "HP", "Dell", "Samsung", "Logitech", "Lenovo", "Sony", "Asus",
+        "Acer", "MSI", "Apple", "Corsair", "Kingston", "Seagate", "Western Digital",
+        "Intel", "AMD", "Crucial", "Sandisk", "Toshiba", "Gigabyte", "Zotac",
+        "EVGA", "Razer", "NZXT", "Cooler Master", "HyperX", "TP-Link", "Netgear"
+    ];
+
+    const brandRegex = new RegExp(`\\b(${brands.join("|")})\\b`, "i");
+
+    const match = productName.match(brandRegex);
+
+    return match ? match[1] : null;
+};
+
+function extractInvoiceDetails(text) {
+    const details = {};
+
+    const productNameMatch = text.match(/\|\d+\s*\|(.+?)\s*\|\s*\d+pcs/i);
+    // const productNameMatch = text.match(
+    //     /(?:\d+\s+|\|\d+\s*\|)?\s*([A-Za-z0-9][A-Za-z0-9\s\-\(\).\/]*?(?=\s*(?:\d+pcs|\|\s*\d+pcs|\d+\s*pes|\s*\d+(?:[,.]\d+)?\s*(?:pcs|pes)?)))/i
+    // );
+    details.productName = productNameMatch ? productNameMatch[1].trim().split(" ").slice(0, 3).join(" ") : null;
+    details.productType = identifyProductTypeRegex(productNameMatch ?? '');
+    details.productBrand = extractBrand(productNameMatch !== null ? productNameMatch[1].trim() : '');
+
+    const dateMatch = text.match(/(?:\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2}|\d{1,2}[-\/\s](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[-\/\s]\d{2,4})/gi);
+    details.purchaseDate = dateMatch ? dateMatch[0] : null;
+
+    const sellerNameMatch = text.match(/ati Computers|Sati Computers/i);
+    details.sellerName = sellerNameMatch ? sellerNameMatch[0] : null;
+
+    const emailMatch = text.match(
+        /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i
+    );
+    details.sellerEmail = emailMatch ? emailMatch[0] : null;
+
+    const contactMatch = text.match(/Mob:\s*-?(\d{10}(?:,\s*\d{10})?)/i);
+    details.sellerContact = contactMatch ? contactMatch[1].split(',').map(num => num.trim()) : null;
+
+    const gstIn = text.match(/GSTIN\/UIN:\s?([A-Z0-9]+)/);
+    details.gstIn = gstIn[1];
+
+    const addressMatch = text.match(
+        /\b(?:complex|road|street|avenue|lane|block|sector|building|city|town|village|district)\b[\s\S]*?(?=\b(?:Mob:|Phone:|Contact:|Email:|GSTIN|Invoice)\b)/i
+    );
+    console.log(addressMatch);
+    details.vendorAddress = addressMatch ? addressMatch[0].trim() : null;
+
+    return details;
+}
+
 const handleText = async (req, res) => {
-    console.log(req.file)
+    console.log(req.file);
     try {
         if (!req.file) {
-            return res.status(400).json({error: 'No image provided'});
+            return res.status(400).json({ error: 'No image provided' });
         }
 
         const image = await Jimp.read(req.file.buffer);
@@ -88,7 +149,7 @@ const handleText = async (req, res) => {
 
         const processedBuffer = await image.getBuffer(JimpMime.jpeg);
 
-        const {data: {text}} = await Tesseract.recognize(
+        const { data: { text } } = await Tesseract.recognize(
             processedBuffer,
             'eng',
             {
@@ -98,12 +159,17 @@ const handleText = async (req, res) => {
         );
 
         const warrantyText = extractWarrantyData(text);
-        console.log(warrantyText);
+        const invoiceDetails = extractInvoiceDetails(text);
+
+        console.log("Warranty Data:", warrantyText);
+        console.log("Invoice Details:", invoiceDetails);
 
         res.json({
             success: true,
+            text,
             data: {
-                warrantyText
+                warrantyText,
+                invoiceDetails
             }
         });
 
