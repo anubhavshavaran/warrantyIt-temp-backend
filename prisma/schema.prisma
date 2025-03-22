@@ -22,6 +22,22 @@ model User {
   Product     Product[]
 }
 
+model Category {
+  categoryId  String        @id @default(cuid()) @map("CATEGORY_ID")
+  category    String        @unique @map("CATEGORY")
+  SubCategory SubCategory[]
+  Product     Product[]
+}
+
+model SubCategory {
+  subCategoryId String @id @default(cuid()) @map("SUB_CATEGORY_ID")
+  subCategory   String @map("SUB_CATEGORY")
+  categoryId    String @map("CATEGORY_ID")
+
+  category Category  @relation(fields: [categoryId], references: [categoryId])
+  Product  Product[]
+}
+
 model Product {
   productId       String @id @default(cuid()) @map("PRODUCT_ID")
   productName     String @map("PRODUCT_NAME")
@@ -29,8 +45,12 @@ model Product {
   productBrand    String @map("PRODUCT_BRAND")
   productImageUrl String @map("PRODUCT_IMAGE_URL")
   userId          String @map("USER_ID")
+  categoryId      String @map("CATEGORY_ID")
+  subCategoryId   String @map("SUB_CATEGORY_ID")
 
-  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  category    Category    @relation(fields: [categoryId], references: [categoryId])
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [subCategoryId])
+  user        User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   Warranty Warranty[]
 }
