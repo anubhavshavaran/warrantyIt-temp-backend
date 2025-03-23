@@ -41,7 +41,6 @@ model SubCategory {
 model Product {
   productId       String @id @default(cuid()) @map("PRODUCT_ID")
   productName     String @map("PRODUCT_NAME")
-  productType     String @map("PRODUCT_TYPE")
   productBrand    String @map("PRODUCT_BRAND")
   productImageUrl String @map("PRODUCT_IMAGE_URL")
   userId          String @map("USER_ID")

@@ -36,7 +36,7 @@ const getAllSubCategories = async (req, res) => {
         });
 
         if (subCategories.length === 0) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: true,
                 message: "No sub category found",
             });
