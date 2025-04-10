@@ -8,7 +8,8 @@ const getAllCategories = async (req, res) => {
             include: {
                 _count: {
                     select: {
-                        SubCategory: true
+                        SubCategory: true,
+                        Product: true
                     }
                 }
             }
