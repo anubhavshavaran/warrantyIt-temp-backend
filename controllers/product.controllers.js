@@ -83,29 +83,8 @@ const handleUpdateProduct = async (req, res) => {
     });
 }
 
-const handleGetProductsByType = async (req, res) => {
-    const {type} = req.params;
-    const products = await prisma.product.findMany({
-        where: {
-            productType: type
-        },
-        select: {
-            productId: true,
-            productBrand: true
-        }
-    });
-
-    res.status(200).json({
-        status: 'Products fetched successfully',
-        data: {
-            products
-        }
-    });
-}
-
 const handleSearchProducts = async (req, res) => {
     try {
-
         const {q} = req.params;
         const products = await prisma.product.findMany({
             where: {
@@ -132,12 +111,38 @@ const handleSearchProducts = async (req, res) => {
     }
 }
 
+const handleGetProductsByCatSubCat = async (req, res) => {
+    try {
+        const {cat, subCat} = req.params;
+
+        const products = await prisma.product.findMany({
+            where: {
+                categoryId: cat,
+                subCategoryId: subCat,
+            }
+        });
+
+        res.status(200).json({
+            status: 'Products fetched successfully',
+            data: {
+                products
+            }
+        });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Something went wrong while searching the product",
+            status: false,
+        });
+    }
+};
+
 export {
     handleRegisterProduct,
     handleGetAllProducts,
     handleUpdateProduct,
     handleGetProduct,
     handleDeleteProduct,
-    handleGetProductsByType,
     handleSearchProducts,
+    handleGetProductsByCatSubCat,
 };
