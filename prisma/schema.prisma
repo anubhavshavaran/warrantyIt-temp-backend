@@ -19,7 +19,6 @@ model User {
   lastname    String     @map("LASTNAME")
   firstname   String     @map("FIRSTNAME")
   Warranty    Warranty[]
-  Product     Product[]
 }
 
 model Category {
@@ -43,13 +42,11 @@ model Product {
   productName     String @map("PRODUCT_NAME")
   productBrand    String @map("PRODUCT_BRAND")
   productImageUrl String @map("PRODUCT_IMAGE_URL")
-  userId          String @map("USER_ID")
   categoryId      String @map("CATEGORY_ID")
   subCategoryId   String @map("SUB_CATEGORY_ID")
 
   category    Category    @relation(fields: [categoryId], references: [categoryId])
   subCategory SubCategory @relation(fields: [subCategoryId], references: [subCategoryId])
-  user        User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   Warranty Warranty[]
 }

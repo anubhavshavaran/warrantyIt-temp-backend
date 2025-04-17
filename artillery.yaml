@@ -1,0 +1,11 @@
+config:
+  target: 'http://localhost:6002/api'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+scenarios:
+  - name: 'Get categories'
+    flow:
+      - get:
+          url: '/categories/cm9l98mii0000nyc0y1acw9z9'

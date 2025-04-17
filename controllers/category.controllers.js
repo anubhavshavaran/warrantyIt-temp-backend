@@ -1,9 +1,24 @@
 import {PrismaClient} from "@prisma/client";
+import redis from "../redis/redis.js";
 
 const prisma = new PrismaClient();
 
+const CATEGORY_CACHE_KEY = 'categories';
+const CACHE_EXPIRY = 3600;
+
 const getAllCategories = async (req, res) => {
     try {
+        const cachedCategories = await redis.get(CATEGORY_CACHE_KEY);
+
+        if (cachedCategories) {
+            return res.status(200).json({
+                success: true,
+                data: {
+                    categories: JSON.parse(cachedCategories)
+                },
+            });
+        }
+
         const categories = await prisma.category.findMany({
             include: {
                 _count: {
@@ -14,6 +29,8 @@ const getAllCategories = async (req, res) => {
                 }
             }
         });
+
+        await redis.setEx(CATEGORY_CACHE_KEY, CACHE_EXPIRY, JSON.stringify(categories));
 
         res.status(200).json({
             success: true,
@@ -38,6 +55,19 @@ const getAllSubCategories = async (req, res) => {
             });
         }
 
+        const key = 'SUB_CATEGORY_CACHE_KEY_' + cat;
+        const cachedSubs = await redis.get(key);
+
+        if (cachedSubs) {
+            console.log('from cache', key);
+            return res.status(200).json({
+                success: true,
+                data: {
+                    subCategories: JSON.parse(cachedSubs)
+                },
+            });
+        }
+
         const subCategories = await prisma.subCategory.findMany({
             where: {
                 categoryId: cat
@@ -50,6 +80,8 @@ const getAllSubCategories = async (req, res) => {
                 message: "No sub category found",
             });
         }
+
+        await redis.setEx(key, CACHE_EXPIRY, JSON.stringify(subCategories));
 
         res.status(200).json({
             success: true,
