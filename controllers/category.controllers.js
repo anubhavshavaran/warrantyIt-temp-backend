@@ -3,11 +3,11 @@ import redis from "../redis/redis.js";
 
 const prisma = new PrismaClient();
 
-const CATEGORY_CACHE_KEY = 'categories';
 const CACHE_EXPIRY = 3600;
 
 const getAllCategories = async (req, res) => {
     try {
+        const CATEGORY_CACHE_KEY = 'CATEGORIES_CACHE';
         const cachedCategories = await redis.get(CATEGORY_CACHE_KEY);
 
         if (cachedCategories) {
@@ -55,7 +55,7 @@ const getAllSubCategories = async (req, res) => {
             });
         }
 
-        const key = 'SUB_CATEGORY_CACHE_KEY_' + cat;
+        const key = 'SUB_CATEGORY_CACHE_' + cat;
         const cachedSubs = await redis.get(key);
 
         if (cachedSubs) {

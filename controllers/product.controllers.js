@@ -103,7 +103,7 @@ const handleSearchProducts = async (req, res) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
         res.status(500).json({
             message: "Something went wrong while searching the product",
             status: false,
@@ -129,13 +129,45 @@ const handleGetProductsByCatSubCat = async (req, res) => {
             }
         });
     } catch (e) {
-        console.log(e);
+        console.error(e);
         res.status(500).json({
             message: "Something went wrong while searching the product",
             status: false,
         });
     }
 };
+
+const handleGetProductsByBrand = async (req, res) => {
+    try {
+        const {brand} = req.params;
+
+        if (!brand) {
+            return res.status(404).json({
+                status: false,
+                message: 'Please provide a brand',
+            });
+        }
+
+        const products = await prisma.product.findMany({
+            where: {
+                brandId: brand,
+            }
+        });
+
+        res.status(200).json({
+            status: true,
+            data: {
+                products
+            }
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({
+            message: "Something went wrong while searching the products",
+            status: false,
+        });
+    }
+}
 
 export {
     handleRegisterProduct,
@@ -145,4 +177,5 @@ export {
     handleDeleteProduct,
     handleSearchProducts,
     handleGetProductsByCatSubCat,
+    handleGetProductsByBrand,
 };

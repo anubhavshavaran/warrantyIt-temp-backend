@@ -7,6 +7,7 @@ import warrantyRouter from "./routes/warranty.routes.js";
 import userRouter from "./routes/user.routes.js";
 import ocrRouter from "./routes/ocr.routes.js";
 import categoryRouter from "./routes/category.routes.js";
+import brandRouter from "./routes/brand.routes.js";
 import cors from "cors";
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use("/api/vendors", vendorRouter);
 app.use("/api/warranty", warrantyRouter);
 app.use("/api/ocr", ocrRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/brands", brandRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}`);

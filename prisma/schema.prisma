@@ -26,6 +26,7 @@ model Category {
   category    String        @unique @map("CATEGORY")
   SubCategory SubCategory[]
   Product     Product[]
+  Brand       Brand[]
 }
 
 model SubCategory {
@@ -35,20 +36,34 @@ model SubCategory {
 
   category Category  @relation(fields: [categoryId], references: [categoryId])
   Product  Product[]
+  Brand    Brand[]
 }
 
 model Product {
   productId       String @id @default(cuid()) @map("PRODUCT_ID")
   productName     String @map("PRODUCT_NAME")
-  productBrand    String @map("PRODUCT_BRAND")
   productImageUrl String @map("PRODUCT_IMAGE_URL")
-  categoryId      String @map("CATEGORY_ID")
-  subCategoryId   String @map("SUB_CATEGORY_ID")
 
+  brandId       String @map("BRAND_ID")
+  categoryId    String @map("CATEGORY_ID")
+  subCategoryId String @map("SUB_CATEGORY_ID")
+
+  brand       Brand       @relation(fields: [brandId], references: [brandId])
   category    Category    @relation(fields: [categoryId], references: [categoryId])
   subCategory SubCategory @relation(fields: [subCategoryId], references: [subCategoryId])
 
   Warranty Warranty[]
+}
+
+model Brand {
+  brandId       String @id @default(cuid()) @map("BRAND_ID")
+  brandName     String @map("BRAND_NAME")
+  categoryId    String @map("CATEGORY_ID")
+  subCategoryId String @map("SUB_CATEGORY_ID")
+
+  category    Category    @relation(fields: [categoryId], references: [categoryId])
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [subCategoryId])
+  Product     Product[]
 }
 
 model Vendor {

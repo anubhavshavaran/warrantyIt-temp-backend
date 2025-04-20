@@ -2,7 +2,7 @@ import {Router} from "express";
 import {
     handleDeleteProduct,
     handleGetAllProducts,
-    handleGetProduct, handleGetProductsByCatSubCat,
+    handleGetProduct, handleGetProductsByBrand, handleGetProductsByCatSubCat,
     handleRegisterProduct, handleSearchProducts,
     handleUpdateProduct
 } from "../controllers/product.controllers.js";
@@ -21,6 +21,9 @@ router.route("/:id")
 
 router.route("/search/:q")
     .get(isUserAuthenticated, handleSearchProducts);
+
+router.route("/brand/:brand")
+        .get(isUserAuthenticated, handleGetProductsByBrand)
 
 router.route("/:cat/:subCat")
     .get(isUserAuthenticated, handleGetProductsByCatSubCat)
