@@ -71,6 +71,13 @@ const getAllSubCategories = async (req, res) => {
         const subCategories = await prisma.subCategory.findMany({
             where: {
                 categoryId: cat
+            },
+            include: {
+                _count: {
+                    select: {
+                        Product: true
+                    }
+                }
             }
         });
 

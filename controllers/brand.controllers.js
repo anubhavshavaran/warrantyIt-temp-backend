@@ -17,6 +17,13 @@ const handleGetAllBrandsByCatSubCat = async (req, res) => {
             where: {
                 categoryId: cat,
                 subCategoryId: subcat,
+            },
+            include: {
+                _count: {
+                    select: {
+                        Product: true,
+                    }
+                }
             }
         });
 
@@ -35,6 +42,41 @@ const handleGetAllBrandsByCatSubCat = async (req, res) => {
     }
 }
 
+const handleCreateBrand = async (req, res) => {
+    try {
+        const {brandName, categoryId, subCategoryId} = req.body;
+
+        if (!brandName || !categoryId || !subCategoryId) {
+            res.status(404).json({
+                status: false,
+                message: 'Brand name, Category and SubCategory are required',
+            });
+        }
+
+        const brand = await prisma.brand.create({
+            data: {
+                brandName: brandName,
+                categoryId: categoryId,
+                subCategoryId: subCategoryId,
+            }
+        });
+
+        res.status(200).json({
+            status: true,
+            data: {
+                brand
+            },
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({
+            status: false,
+            message: 'Something went wrong',
+        });
+    }
+}
+
 export {
     handleGetAllBrandsByCatSubCat,
+    handleCreateBrand,
 }

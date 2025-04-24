@@ -3,13 +3,10 @@ import {PrismaClient} from '@prisma/client';
 const prisma = new PrismaClient();
 
 const handleRegisterProduct = async (req, res) => {
-    const {userId} = req.user;
-
     try {
         const registeredProduct = await prisma.product.create({
             data: {
                 ...req.body,
-                userId: userId,
             },
         });
 
