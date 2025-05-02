@@ -8,6 +8,7 @@ import userRouter from "./routes/user.routes.js";
 import ocrRouter from "./routes/ocr.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 import brandRouter from "./routes/brand.routes.js";
+import logRouter from "./routes/log.routes.js";
 import cors from "cors";
 
 dotenv.config();
@@ -31,6 +32,14 @@ app.use("/api/warranty", warrantyRouter);
 app.use("/api/ocr", ocrRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);
+app.use("/api/logs", logRouter);
+
+app.all("*", (req, res) => {
+    res.status(404).send({
+        status: false,
+        message: "No resource found. Check the URL."
+    });
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}`);

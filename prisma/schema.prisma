@@ -101,3 +101,12 @@ model Warranty {
   product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   vendor  Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
 }
+
+model Log {
+  logId     String   @id @default(cuid()) @map("LOG_ID")
+  userId    String?  @map("USER_ID")
+  location  String   @map("LOCATION")
+  message   String   @map("MESSAGE")
+  stack     String?  @map("STACK")
+  createdAt DateTime @default(now()) @map("CREATED_AT")
+}

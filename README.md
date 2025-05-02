@@ -1,7 +1,14 @@
-
-# Backend Setup: Express with Prisma and PostgreSQL
+# Backend Setup
 
 This guide walks you through the process of setting up and running the backend server built with Express, Prisma, and PostgreSQL.
+
+---
+
+## Prerequisites
+- **Node.js**: Version 18 or higher (recommended due to ESM support).
+- **PostgreSQL**: Installed and running on your machine (default port: `5432`).
+- **Git**: For cloning the repository.
+- **NPM**: For installing dependencies.
 
 ---
 
@@ -22,9 +29,10 @@ This guide walks you through the process of setting up and running the backend s
   ```bash
   npm install
   ```
+- This will install all dependencies listed in `package.json`, including:
 
 ### Step 3: Create an Environment File
-- Create a `.env` file in the root directory of the project. This file will store all the environment variables required for the application to run.
+- Create a `.env` file in the root directory of the project to store environment variables required for the application.
 
 ### Step 4: Configure the Environment Variables
 - Add the following environment variables to the `.env` file and replace the placeholder values with your configuration:
@@ -36,44 +44,79 @@ This guide walks you through the process of setting up and running the backend s
   DATABASEUSER=root
   DATABASEPASSWORD=Pass@123
   PORT=6002
-
   DATABASE_URL=postgresql://USERNAME:PASSWORD@localhost:PORT/DATABASENAME?schema=public
   ```
 
 #### Explanation of Variables:
-- **`JWTSECRET`**: A secret key used for JWT authentication (you can use a custom secret for better security).
-- **`DATABASE`**: Name of the database.
-- **`DATABASEHOST`**: Host of the database server (commonly `localhost` for local setups).
-- **`DATABASEUSER`**: Username to connect to the PostgreSQL database.
-- **`DATABASEPASSWORD`**: Password for the database user.
-- **`PORT`**: Port number on which the backend server will run.
-- **`DATABASE_URL`**: Connection URL for Prisma to connect to PostgreSQL.
+- **`JWTSECRET`**: Secret key for JWT authentication (use a strong, unique secret for production).
+- **`DATABASE`**: Name of the PostgreSQL database.
+- **`DATABASEHOST`**: Host of the database server (usually `localhost` for local setups).
+- **`DATABASEUSER`**: Username for PostgreSQL.
+- **`DATABASEPASSWORD`**: Password for the PostgreSQL user.
+- **`PORT`**: Port for the Express server (default: `6002`).
+- **`DATABASE_URL`**: Prisma connection string for PostgreSQL.
 
----
-
-### Updating the `DATABASE_URL`
-Replace the placeholders in the connection string as follows:
-- `USERNAME` => Your PostgreSQL username.
+#### Updating the `DATABASE_URL`
+Replace placeholders in the connection string:
+- `USERNAME` => Your PostgreSQL username (e.g., `postgres`).
 - `PASSWORD` => Your PostgreSQL password.
-- `PORT` => The port on which PostgreSQL is running (default is `5432`).
-- `DATABASENAME` => The name of your PostgreSQL database.
+- `PORT` => PostgreSQL port (default: `5432`).
+- `DATABASENAME` => Database name (e.g., `warrantyit`).
 
 Example:
 ```env
 DATABASE_URL=postgresql://postgres:root@localhost:5432/warrantyit?schema=public
 ```
 
----
-
-### Step 5: Apply Database Migrations
-- Run the following command to synchronize the Prisma schema with the database:
-  ```bash
-  npx prisma migrate dev
+#### Additional Environment Variables
+Based on the dependencies (e.g., `nodemailer`, `redis`, `openai`), you may need additional variables. Add these to `.env` if required by your application:
+- **Redis**:
+  ```env
+  REDIS_URL=redis://localhost:6379
+  ```
+- **Nodemailer** (for email):
+  ```env
+  EMAIL_HOST=smtp.example.com
+  EMAIL_PORT=587
+  EMAIL_USER=your-email@example.com
+  EMAIL_PASS=your-email-password
+  ```
+- **OpenAI** (for AI features):
+  ```env
+  OPENAI_API_KEY=your-openai-api-key
+  ```
+- **Google Auth** (for OAuth):
+  ```env
+  GOOGLE_CLIENT_ID=your-google-client-id
+  GOOGLE_CLIENT_SECRET=your-google-client-secret
   ```
 
+Check your application code or documentation for specific requirements.
+
+### Step 5: Set Up the Database
+1. Ensure PostgreSQL is running and the database specified in `DATABASE_URL` exists. Create it if needed:
+   ```bash
+   psql -U postgres -c "CREATE DATABASE warrantyit;"
+   ```
+2. Apply Prisma migrations to synchronize the schema with the database:
+   ```bash
+   npx prisma migrate dev
+   ```
+    - This command creates tables based on your Prisma schema and runs any pending migrations.
+    - If you need to generate the Prisma client, run:
+      ```bash
+      npx prisma generate
+      ```
+
 ### Step 6: Start the Server
-- Finally, start the backend server using the following command:
+- Start the backend server in production mode:
   ```bash
   npm start
   ```
-- The server will start on the port specified in the `.env` file (default: 6002).
+- For development with auto-restart on changes (using `nodemon`):
+  ```bash
+  npm run dev
+  ```
+- The server will run on the port specified in `.env` (default: `6002`). Access it at `http://localhost:6002`.
+
+---
