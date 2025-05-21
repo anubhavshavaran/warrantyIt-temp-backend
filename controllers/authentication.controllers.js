@@ -252,6 +252,7 @@ const handleUserWithGoogle = async (req, res) => {
 
         res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
     } catch (e) {
+        console.error(e)
         res.status(500).json({
             error: true,
             message: "Something went wrong in authentication",
