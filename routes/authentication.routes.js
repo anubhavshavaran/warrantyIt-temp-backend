@@ -14,10 +14,10 @@ router.get("/google", passport.authenticate('google', {scope: ['profile', 'email
 router.get('/google/callback',
         passport.authenticate('google', {session: false, failureRedirect: '/'}),
         (req, res) => {
-            // Generate JWT
             console.log('done with everything')
             console.log('Request', req);
             console.log('User', req.user);
+            const token = req.user.id;
             // const token = jwt.sign({
             //     id: req.user.id,
             //     name: req.user.displayName,
@@ -25,9 +25,10 @@ router.get('/google/callback',
             // }, process.env.JWT_SECRET, { expiresIn: '1h' });
             //
             // // Redirect to React Native deep link
-            res.status(200).send({
-                user: req.user,
-            });
+            res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
+            // res.status(200).send({
+            //     user: req.user,
+            // });
         }
 );
 
