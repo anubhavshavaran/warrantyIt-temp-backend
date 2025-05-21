@@ -1,7 +1,12 @@
 import {createClient} from 'redis';
 
 const redis = await createClient({
-    url: process.env.REDIS_URL,
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+    }
 });
 
 redis.on('error', (err) => console.log(err));
