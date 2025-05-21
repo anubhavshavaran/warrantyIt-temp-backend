@@ -1,34 +1,30 @@
 import {PrismaClient} from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {OAuth2Client} from 'google-auth-library';
 import {promisify} from "util";
 import {generateOTP} from "../lib/OTP.js";
 import {sendMail} from "../lib/mailer.js";
 
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const client = new OAuth2Client(CLIENT_ID);
-
 const prisma = new PrismaClient();
+
+function generateUsername(word1, word2) {
+    const part1 = word1.substring(0, 4).padEnd(4, '_');
+    const part2 = word2.slice(-4).padStart(4, '_');
+
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+
+    let username = `${part1}${part2}${randomNum}`;
+    username = username.toLowerCase();
+
+    return username;
+}
+
 
 const signToken = (userId) => {
     return jwt.sign({userId}, process.env.JWTSECRET, {
         expiresIn: process.env.JWTEXPIRESIN,
     });
 }
-
-const verifyGoogleToken = async (idToken) => {
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken,
-            audience: CLIENT_ID,
-        });
-        return ticket.getPayload();
-    } catch (error) {
-        console.error('Error verifying Google token:', error);
-        throw new Error('Invalid token');
-    }
-};
 
 const handleUserSignUp = async (req, res) => {
     try {
@@ -86,11 +82,11 @@ const handleUserSignUp = async (req, res) => {
         newUser.updatedAt = undefined;
 
         res.status(201)
-            .json({
-                message: "User created successfully",
-                token,
-                newUser
-            });
+                .json({
+                    message: "User created successfully",
+                    token,
+                    newUser
+                });
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -143,11 +139,11 @@ const handleUserSignIn = async (req, res) => {
         user.updatedAt = undefined;
 
         res.status(200)
-            .json({
-                message: "Login successful",
-                token,
-                user
-            });
+                .json({
+                    message: "Login successful",
+                    token,
+                    user
+                });
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -156,52 +152,6 @@ const handleUserSignIn = async (req, res) => {
         });
     }
 };
-
-const handleUserWithGoogle = async (req, res) => {
-    try {
-        const {token: googleToken} = req.params;
-
-        if (!googleToken) {
-            return res.status(400).json({
-                message: "Token is required",
-            });
-        }
-        const {email, name} = await verifyGoogleToken(googleToken);
-
-
-        let user = await prisma.user.findUnique({
-            where: {email},
-        });
-
-        if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    name,
-                    email
-                }
-            });
-        }
-
-        const token = signToken(user.userId);
-
-        user.password = undefined;
-        user.createdAt = undefined;
-        user.updatedAt = undefined;
-
-        res.status(200)
-            .json({
-                message: "Authenticated successfully",
-                token,
-                user
-            });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Something went wrong in authentication",
-            status: false,
-        });
-    }
-}
 
 const handleVerifyUser = async (req, res) => {
     try {
@@ -249,9 +199,9 @@ const handleSendOTP = async (req, res) => {
         const otp = generateOTP();
 
         await sendMail(
-            email,
-            'Your OTP for signing up.',
-            `This is your OTP for signing up: ${otp}. Please don't share this with anyone.`
+                email,
+                'Your OTP for signing up.',
+                `This is your OTP for signing up: ${otp}. Please don't share this with anyone.`
         );
 
         res.status(200).json({
@@ -268,7 +218,46 @@ const handleSendOTP = async (req, res) => {
     }
 }
 
+const handleUserWithGoogle = async (req, res) => {
+    try {
+        const {name: {familyName, givenName}, emails: [{value: email}]} = req.user;
 
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                email: email
+            },
+        });
+
+        if (existingUser) {
+            const token = signToken(existingUser.userId);
+            return res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
+        }
+
+        const username = generateUsername(givenName, familyName);
+
+        const newUser = await prisma.user.create({
+            data: {
+                firstname: givenName,
+                lastname: familyName,
+                username,
+                email,
+            },
+        });
+
+        const token = signToken(newUser.userId);
+
+        newUser.password = undefined;
+        newUser.createdAt = undefined;
+        newUser.updatedAt = undefined;
+
+        res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
+    } catch (e) {
+        res.status(500).json({
+            error: true,
+            message: "Something went wrong in authentication",
+        });
+    }
+}
 
 export {
     handleUserSignUp,

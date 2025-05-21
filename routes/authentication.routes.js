@@ -11,31 +11,15 @@ const router = Router();
 
 router.get("/google", passport.authenticate('google', {scope: ['profile', 'email']}));
 
-router.get('/google/callback',
-        passport.authenticate('google', {session: false, failureRedirect: '/'}),
-        (req, res) => {
-            console.log('done with everything')
-            console.log('Request', req);
-            console.log('User', req.user);
-            const token = req.user.id;
-            // const token = jwt.sign({
-            //     id: req.user.id,
-            //     name: req.user.displayName,
-            //     email: req.user.emails[0].value
-            // }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            //
-            // // Redirect to React Native deep link
-            res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
-            // res.status(200).send({
-            //     user: req.user,
-            // });
-        }
+router.get(
+    '/google/callback',
+    passport.authenticate('google', {session: false, failureRedirect: '/'}),
+    handleUserWithGoogle
 );
 
 router.post("/signup", handleUserSignUp);
 router.post("/verify", handleVerifyUser);
 router.post("/signin", handleUserSignIn);
-router.post("/google/:token", handleUserWithGoogle);
 router.post("/otp", handleSendOTP);
 
 export default router;
