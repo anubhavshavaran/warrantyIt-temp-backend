@@ -25,6 +25,14 @@ const handleUpdateUser = async (req, res) => {
             },
             data: {
                 ...req.body,
+            },
+            select: {
+                userId: true,
+                email: true,
+                phoneNumber: true,
+                username: true,
+                firstname: true,
+                lastname: true,
             }
         });
 

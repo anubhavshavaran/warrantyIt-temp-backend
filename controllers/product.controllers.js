@@ -8,6 +8,9 @@ const handleRegisterProduct = async (req, res) => {
             data: {
                 ...req.body,
             },
+            select: {
+                productId: true,
+            }
         });
 
         return res.status(200).json({
@@ -28,7 +31,15 @@ const handleRegisterProduct = async (req, res) => {
 };
 
 const handleGetAllProducts = async (req, res) => {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+        select: {
+            productId: true,
+            productName: true,
+            categoryId: true,
+            subCategoryId: true,
+            brandId: true,
+        }
+    });
 
     res.status(200).json({
         status: 'Products fetched successfully',
@@ -41,6 +52,13 @@ const handleGetProduct = async (req, res) => {
     const product = await prisma.product.findUnique({
         where: {
             productId: req.params.id,
+        },
+        select: {
+            productId: true,
+            productName: true,
+            categoryId: true,
+            subCategoryId: true,
+            brandId: true,
         }
     });
 
@@ -69,6 +87,13 @@ const handleUpdateProduct = async (req, res) => {
         },
         data: {
             ...req.body,
+        },
+        select: {
+            productId: true,
+            productName: true,
+            categoryId: true,
+            subCategoryId: true,
+            brandId: true,
         }
     });
 
@@ -91,6 +116,13 @@ const handleSearchProducts = async (req, res) => {
                 },
                 userId: req.user.userId,
             },
+            select: {
+                productId: true,
+                productName: true,
+                categoryId: true,
+                subCategoryId: true,
+                brandId: true,
+            }
         });
 
         res.status(200).json({
@@ -116,6 +148,13 @@ const handleGetProductsByCatSubCat = async (req, res) => {
             where: {
                 categoryId: cat,
                 subCategoryId: subCat,
+            },
+            select: {
+                productId: true,
+                productName: true,
+                categoryId: true,
+                subCategoryId: true,
+                brandId: true,
             }
         });
 
@@ -148,6 +187,13 @@ const handleGetProductsByBrand = async (req, res) => {
         const products = await prisma.product.findMany({
             where: {
                 brandId: brand,
+            },
+            select: {
+                productId: true,
+                productName: true,
+                categoryId: true,
+                subCategoryId: true,
+                brandId: true,
             }
         });
 

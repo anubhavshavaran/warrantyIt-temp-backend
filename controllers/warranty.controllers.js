@@ -10,6 +10,9 @@ const handleCreateWarranty = async (req, res) => {
             data: {
                 ...req.body,
                 userId: userId
+            },
+            select: {
+                warrantyId: true
             }
         });
 
@@ -118,7 +121,7 @@ const handleDeleteWarranty = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deletedWarranty = await prisma.warranty.delete({
+        await prisma.warranty.delete({
             where: {
                 warrantyId: id
             }

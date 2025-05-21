@@ -7,6 +7,9 @@ const handleCreateVendor = async (req, res) => {
         const vendor = await prisma.vendor.create({
             data: {
                 ...req.body
+            },
+            select: {
+                vendorId: true
             }
         });
 
@@ -24,11 +27,19 @@ const handleCreateVendor = async (req, res) => {
 
 const handleGetAllVendors = async (req, res) => {
     try {
-        const vendors = await prisma.vendor.findMany();
+        const vendors = await prisma.vendor.findMany({
+            select: {
+                vendorId: true,
+                vendorName: true,
+                vendorReturnPolicy: true,
+                vendorAddress: true,
+                vendorContact: true
+            }
+        });
 
         res.status(200).send({
             status: "Vendors fetched successfully",
-            data: {vendors}
+            data: {vendors},
         });
     } catch (error) {
         res.status(500).send({
@@ -45,6 +56,13 @@ const handleGetVendor = async (req, res) => {
         const vendor = await prisma.vendor.findUnique({
             where: {
                 vendorId: id
+            },
+            select: {
+                vendorId: true,
+                vendorName: true,
+                vendorReturnPolicy: true,
+                vendorAddress: true,
+                vendorContact: true
             }
         });
 
@@ -76,7 +94,14 @@ const handleUpdateVendor = async (req, res) => {
             where: {
                 vendorId: id
             },
-            data: updatedData
+            data: updatedData,
+            select: {
+                vendorId: true,
+                vendorName: true,
+                vendorReturnPolicy: true,
+                vendorAddress: true,
+                vendorContact: true
+            }
         });
 
         res.status(200).send({
@@ -102,7 +127,7 @@ const handleDeleteVendor = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deletedVendor = await prisma.vendor.delete({
+        await prisma.vendor.delete({
             where: {
                 vendorId: id
             }
@@ -135,6 +160,13 @@ const handleSearchVendors = async (req, res) => {
                 mode: "insensitive",
             },
         },
+        select: {
+            vendorId: true,
+            vendorName: true,
+            vendorReturnPolicy: true,
+            vendorAddress: true,
+            vendorContact: true
+        }
     });
 
     res.status(200).json({

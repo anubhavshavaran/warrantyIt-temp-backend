@@ -10,6 +10,8 @@ import categoryRouter from "./routes/category.routes.js";
 import brandRouter from "./routes/brand.routes.js";
 import logRouter from "./routes/log.routes.js";
 import cors from "cors";
+import passport from "passport";
+import {Strategy} from 'passport-google-oauth20';
 
 dotenv.config();
 
@@ -21,8 +23,19 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.use(passport.initialize());
+
 app.use(json());
 app.use(urlencoded({extended: true}));
+
+passport.use(new Strategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/api/auth/google/callback"
+}, (accessToken, refreshToken, profile, done) => {
+    return done(null, profile);
+}));
+
 app.use(static_("public"));
 app.use("/api/auth", authenticationRouter);
 app.use("/api/users", userRouter);
