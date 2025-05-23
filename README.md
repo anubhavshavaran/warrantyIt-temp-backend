@@ -87,8 +87,48 @@ Based on the dependencies (e.g., `nodemailer`, `redis`, `openai`), you may need 
   ```
 - **Google Auth** (for OAuth):
   ```env
-  GOOGLE_CLIENT_ID=your-google-client-id
-  GOOGLE_CLIENT_SECRET=your-google-client-secret
+  GOOGLE_CLIENT_ID=420487963320-48tqlmlkc0fffusalb4lv3ac2jsknfd0.apps.googleusercontent.com
+  GOOGLE_CLIENT_SECRET=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
+  GOOGLE_CLIENT_CALLBACK_URL=/api/auth/google/callback
+  CLIENT_APP_URL=warrantyit://(auth)/
+  ```
+
+- **GOOGLE_CLIENT_ID** and **GOOGLE_CLIENT_SECRET**: Credentials from your Google Developer Console.
+- **GOOGLE_CLIENT_CALLBACK_URL**: The backend route Google will redirect to after authentication.
+- **CLIENT_APP_URL**: The URL scheme your frontend uses to handle the JWT token.
+
+### Google Strategy Setup
+  ```env
+  const passport = require("passport");
+  const { Strategy } = require("passport-google-oauth20");
+  
+  passport.use(new Strategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CLIENT_CALLBACK_URL,
+  }, (accessToken, refreshToken, profile, done) => {
+    return done(null, profile);
+  }));
+  ```
+
+### Authentication Callback Handler
+  ```env
+   const handleUserWithGoogle = async (req, res) => {
+     try {
+       ...
+       
+       if (existingUser) {
+         const token = signToken(existingUser.userId);
+         return res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
+       }
+       
+       ...
+       
+       res.redirect(`${process.env.CLIENT_APP_URL}?token=${token}`);
+     } catch (e) {
+       ...
+     }
+   };
   ```
 
 Check your application code or documentation for specific requirements.
