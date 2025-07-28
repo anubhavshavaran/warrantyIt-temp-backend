@@ -36,6 +36,11 @@ const isUserAuthenticated = async (req, res, next) => {
         next();
     } catch (error) {
         console.log("Something Went Wrong In Authentication Middleware", error);
+
+        return res.status(401).json({
+            message: "Authentication failed: Invalid or expired token.",
+            error: error.name
+        });
     }
 };
 

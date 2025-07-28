@@ -3,7 +3,7 @@ import {
     handleUserSignUp,
     handleUserSignIn,
     handleUserWithGoogle,
-    handleVerifyUser, handleSendOTP
+    handleVerifyUser, handleSendOTP, handleUserExists, handleForgotPassword
 } from "../controllers/authentication.controllers.js";
 import passport from "passport";
 
@@ -18,8 +18,10 @@ router.get(
 );
 
 router.post("/signup", handleUserSignUp);
-router.post("/verify", handleVerifyUser);
 router.post("/signin", handleUserSignIn);
+router.post("/verify", handleVerifyUser);
+router.post("/userexists", handleUserExists);
 router.post("/otp", handleSendOTP);
+router.post("/forgotpassword", handleForgotPassword);
 
 export default router;

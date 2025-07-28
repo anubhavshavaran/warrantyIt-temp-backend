@@ -28,21 +28,21 @@ const signToken = (userId) => {
 
 const handleUserSignUp = async (req, res) => {
     try {
-        const {firstname, lastname, username, email, password} = req.body;
+        const {name, phoneNumber, email, password} = req.body;
 
-        if (!username || !email || !password || !firstname || !lastname) {
+        if (!email || !password || !name) {
             return res.status(400).json({
                 message: "Please fill all the fields",
                 status: false,
             });
         }
 
-        const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
+        // const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if (!usernameRegex.test(username) || !emailRegex.test(email)) {
+        if (!emailRegex.test(email)) {
             return res.status(400).json({
-                message: "Please provide a valid username and email address!",
+                message: "Please provide a valid email address!",
                 status: false,
             });
         }
@@ -51,7 +51,6 @@ const handleUserSignUp = async (req, res) => {
             where: {
                 OR: [
                     {email: email},
-                    {username: username}
                 ]
             },
         });
@@ -67,10 +66,9 @@ const handleUserSignUp = async (req, res) => {
 
         const newUser = await prisma.user.create({
             data: {
-                firstname,
-                lastname,
-                username,
+                name,
                 email,
+                phoneNumber,
                 password: hashedPassword,
             },
         });
@@ -260,10 +258,103 @@ const handleUserWithGoogle = async (req, res) => {
     }
 }
 
+const handleUserExists = async (req, res) => {
+    const {user} = req.body;
+
+    try {
+        if (!user) {
+            throw new Error("Please provide an email address or phone number");
+        }
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    {email: user},
+                    {phoneNumber: user},
+                ]
+            },
+        });
+
+        if (!existingUser) {
+            return res.status(404).json({
+                message: "No user exists with this email or phone number.",
+                status: false,
+            });
+        }
+
+        return res.status(200).json({
+            message: "User exists",
+            status: true,
+        });
+    } catch (e) {
+        res.status(500).json({
+            message: "Something went wrong",
+            error: e.message,
+            status: false,
+        });
+    }
+}
+
+const handleForgotPassword = async (req, res) => {
+    const {user, password} = req.body;
+    try {
+        if (!user || !password) {
+            throw new Error("Please provide an email address or phone number and password.");
+        }
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    {email: user},
+                    {phoneNumber: user},
+                ]
+            },
+        });
+
+        if (!existingUser) {
+            return res.status(404).json({
+                message: "No user exists with this email or phone number.",
+                status: false,
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const updatedUser = await prisma.user.update({
+            where: {
+                userId: existingUser.userId
+            },
+            data: {
+                password: hashedPassword,
+            }
+        });
+
+        const token = signToken(updatedUser.userId);
+
+        updatedUser.password = undefined;
+        updatedUser.createdAt = undefined;
+        updatedUser.updatedAt = undefined;
+
+        res.status(201).json({
+            message: "Password updated successfully",
+            token,
+            updatedUser,
+            status: true,
+        });
+    } catch (e) {
+        res.status(500).json({
+            status: false,
+            message: "Something went wrong",
+            error: e.message,
+        });
+    }
+}
+
 export {
     handleUserSignUp,
     handleUserSignIn,
     handleUserWithGoogle,
     handleVerifyUser,
     handleSendOTP,
+    handleUserExists,
+    handleForgotPassword,
 };

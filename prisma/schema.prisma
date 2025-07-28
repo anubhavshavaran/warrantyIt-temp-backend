@@ -15,9 +15,8 @@ model User {
   updatedAt   DateTime?  @updatedAt @map("UPDATED_AT")
   address     String?    @map("ADDRESS")
   phoneNumber String?    @map("PHONE_NUMBER")
-  username    String     @unique @map("USERNAME")
-  lastname    String     @map("LASTNAME")
-  firstname   String     @map("FIRSTNAME")
+  username    String?     @unique @map("USERNAME")
+  name   String     @map("NAME")
   Warranty    Warranty[]
 }
 
