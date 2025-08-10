@@ -109,7 +109,6 @@ const handleUserSignIn = async (req, res) => {
             where: {
                 OR: [
                     {email: id,},
-                    {username: id}
                 ]
             },
         });

@@ -4,11 +4,13 @@ import authenticationRouter from "./routes/authentication.routes.js";
 import productRouter from "./routes/product.routes.js";
 import vendorRouter from "./routes/vendor.routes.js";
 import warrantyRouter from "./routes/warranty.routes.js";
+import claimsRouter from "./routes/claims.routes.js";
 import userRouter from "./routes/user.routes.js";
 import ocrRouter from "./routes/ocr.routes.js";
 import categoryRouter from "./routes/category.routes.js";
 import brandRouter from "./routes/brand.routes.js";
 import logRouter from "./routes/log.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 import cors from "cors";
 import passport from "passport";
 import {Strategy} from 'passport-google-oauth20';
@@ -38,10 +40,12 @@ passport.use(new Strategy({
 
 app.use(static_("public"));
 app.use("/api/auth", authenticationRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/vendors", vendorRouter);
 app.use("/api/warranty", warrantyRouter);
+app.use("/api/claims", claimsRouter);
 app.use("/api/ocr", ocrRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/brands", brandRouter);

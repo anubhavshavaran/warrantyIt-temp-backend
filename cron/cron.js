@@ -14,9 +14,9 @@ const persistWarrantiesFromRedis = async () => {
             try {
                 await prisma.warranty.create({ data: warranty });
                 await redis.hDel('warranties', id);
-                console.log(`✅ Persisted warranty: ${id}`);
+                console.log(`Persisted warranty: ${id}`);
             } catch (error) {
-                console.error(`❌ Failed to persist warranty ${id}:`, error.message);
+                console.error(`Failed to persist warranty ${id}:`, error.message);
             }
         }
 

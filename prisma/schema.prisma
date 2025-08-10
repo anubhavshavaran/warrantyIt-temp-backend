@@ -15,9 +15,11 @@ model User {
   updatedAt   DateTime?  @updatedAt @map("UPDATED_AT")
   address     String?    @map("ADDRESS")
   phoneNumber String?    @map("PHONE_NUMBER")
-  username    String?     @unique @map("USERNAME")
-  name   String     @map("NAME")
+  username    String?    @unique @map("USERNAME")
+  name        String     @map("NAME")
   Warranty    Warranty[]
+
+  Claim Claim[]
 }
 
 model Category {
@@ -99,6 +101,21 @@ model Warranty {
   user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   vendor  Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
+  Claim   Claim[]
+}
+
+model Claim {
+  claimId       String @id @default(cuid()) @map("CLAIM_ID")
+  warrantyId    String @map("WARRANTY_ID")
+  userId        String @map("BUYER_ID")
+  claimIssue    String @map("CLAIM_ISSUE")
+  claimImageUrl String @map("CLAIM_IMAGE_URL")
+  serviceDate   String @map("SERVICE_DATE")
+  serviceTime   String @map("SERVICE_TIME")
+  claimAddress  String @map("CLAIM_ADDRESS")
+
+  user             User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  warranty         Warranty @relation(fields: [warrantyId], references: [warrantyId], onDelete: Cascade)
 }
 
 model Log {
