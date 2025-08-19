@@ -63,8 +63,7 @@ const handleGetAllWarranties = async (req, res) => {
                         category: true,
                         subCategory: true,
                     }
-                },
-                vendor: true
+                }
             }
         });
 
@@ -103,8 +102,7 @@ const handleGetWarranty = async (req, res) => {
                         category: true,
                         subCategory: true,
                     }
-                },
-                vendor: true
+                }
             }
         });
 

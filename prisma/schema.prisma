@@ -79,22 +79,22 @@ model Vendor {
 
 model Warranty {
   warrantyId             String   @id @default(cuid()) @map("WARRANTY_ID")
-  warrantyCoverage       String   @map("WARRANTY_COVERAGE")
-  warrantyType           String   @map("WARRANTY_TYPE")
-  brandWarranty          String   @map("BRAND_WARRANTY")
-  warrantyCardImageUrl   String   @map("WARRANTY_CARD_IMAGE_URL")
+  warrantyCoverage       String?  @map("WARRANTY_COVERAGE")
+  warrantyType           String?  @map("WARRANTY_TYPE")
+  brandWarranty          String?  @map("BRAND_WARRANTY")
+  warrantyCardImageUrl   String?  @map("WARRANTY_CARD_IMAGE_URL")
   userId                 String   @map("BUYER_ID")
   productId              String   @map("PRODUCT_ID")
   vendorId               String   @map("VENDOR_ID")
-  purchaseDate           String   @map("PRODUCT_PURCHASE_DATE")
-  serialNumber           String   @map("PRODUCT_SERIAL_NUMBER")
-  warrantyStart          String   @map("WARRANTY_START_DATE")
+  purchaseDate           String?  @map("PRODUCT_PURCHASE_DATE")
+  serialNumber           String?  @map("PRODUCT_SERIAL_NUMBER")
+  warrantyStart          String?  @map("WARRANTY_START_DATE")
   warrantyEnd            String?  @map("WARRANTY_END_DATE")
   warrantyPeriod         String?  @map("WARRANTY_PERIOD")
-  buyersEmail            String   @map("BUYERS_EMAIL")
-  buyersName             String   @map("BUYERS_NAME")
-  buyersPhone            String   @map("BUYERS_PHONE")
-  vendorWarrantyCoverage String   @map("VENDOR_WARRANTY_COVERAGE")
+  buyersEmail            String?  @map("BUYERS_EMAIL")
+  buyersName             String?  @map("BUYERS_NAME")
+  buyersPhone            String?  @map("BUYERS_PHONE")
+  vendorWarrantyCoverage String?  @map("VENDOR_WARRANTY_COVERAGE")
   isProductOwned         Boolean? @map("IS_PRODUCT_OWNED")
   show                   Boolean? @map("SHOW")
 
@@ -102,6 +102,15 @@ model Warranty {
   product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   vendor  Vendor  @relation(fields: [vendorId], references: [vendorId], onDelete: Cascade)
   Claim   Claim[]
+}
+
+enum ClaimStatus {
+  SUBMITTED
+  IN_REVIEW
+  TECHNICIAN_ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 model Claim {
@@ -114,8 +123,21 @@ model Claim {
   serviceTime   String @map("SERVICE_TIME")
   claimAddress  String @map("CLAIM_ADDRESS")
 
-  user             User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  warranty         Warranty @relation(fields: [warrantyId], references: [warrantyId], onDelete: Cascade)
+  currentStatus ClaimStatus @default(SUBMITTED) @map("CURRENT_STATUS")
+
+  user     User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  warranty Warranty @relation(fields: [warrantyId], references: [warrantyId], onDelete: Cascade)
+
+  ClaimStatusHistory ClaimStatusHistory[]
+}
+
+model ClaimStatusHistory {
+  historyId String      @id @default(cuid()) @map("HISTORY_ID")
+  claimId   String      @map("CLAIM_ID")
+  status    ClaimStatus @map("STATUS")
+  updatedAt DateTime    @default(now()) @map("UPDATED_AT")
+
+  claim Claim @relation(fields: [claimId], references: [claimId], onDelete: Cascade)
 }
 
 model Log {
