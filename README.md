@@ -87,10 +87,10 @@ Based on the dependencies (e.g., `nodemailer`, `redis`, `openai`), you may need 
   ```
 - **Google Auth** (for OAuth):
   ```env
-  GOOGLE_CLIENT_ID=420487963320-48tqlmlkc0fffusalb4lv3ac2jsknfd0.apps.googleusercontent.com
-  GOOGLE_CLIENT_SECRET=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
-  GOOGLE_CLIENT_CALLBACK_URL=/api/auth/google/callback
-  CLIENT_APP_URL=warrantyit://(auth)/
+  GOOGLE_CLIENT_ID=**************
+  GOOGLE_CLIENT_SECRET=**************
+  GOOGLE_CLIENT_CALLBACK_URL=**************
+  CLIENT_APP_URL=**************
   ```
 
 - **GOOGLE_CLIENT_ID** and **GOOGLE_CLIENT_SECRET**: Credentials from your Google Developer Console.
