@@ -234,8 +234,7 @@ const handleUserWithGoogle = async (req, res) => {
 
         const newUser = await prisma.user.create({
             data: {
-                firstname: givenName,
-                lastname: familyName,
+                name: givenName + ' ' + familyName,
                 username,
                 email,
             },
